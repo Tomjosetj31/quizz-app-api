@@ -20,6 +20,10 @@ class User(AbstractUser, PermissionsMixin):
     password = models.CharField(max_length=255)
     accepted_terms_at = models.DateTimeField(auto_now_add=True)
 
+    is_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    verified_at = models.DateTimeField(null=True, default=None)
+
     username = None
 
     objects = UserManager()
@@ -29,4 +33,12 @@ class User(AbstractUser, PermissionsMixin):
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)
-        return {"refresh": str(refresh), "access": str(refresh.access_token)}
+        return str(refresh), str(refresh.access_token)
+
+
+class Token(models.Model):
+    access_token = models.CharField(max_length=500, null=True)
+    refresh_token = models.CharField(max_length=500, null=True)
+
+    # user_id = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

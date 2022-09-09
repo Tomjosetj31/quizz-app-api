@@ -3,7 +3,7 @@ from django.contrib import auth
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
-from .models import User
+from .models import User, Token
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -28,7 +28,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "password"]
+        fields = ["email", "password", "tokens"]
 
     def validate(self, attrs):
         email = attrs.get("email", "")
@@ -37,4 +37,17 @@ class LoginSerializer(serializers.ModelSerializer):
         user = auth.authenticate(email=email, password=password)
         if not user:
             raise AuthenticationFailed("Invalid credentials, try again")
-        return {"email": email}
+        if not user.is_verified:
+            raise AuthenticationFailed("Please verify your email")
+        if not user.is_active:
+            raise AuthenticationFailed("Account disabled, contact admin")
+        refresh_token, access_token = user.tokens()
+        token = Token(access_token=access_token, refresh_token=refresh_token, user=user)
+        token.save()
+        return {
+            "email": email,
+            "tokens": {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            },
+        }
