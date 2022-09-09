@@ -2,6 +2,5 @@
 
 __pycache__/
 
-template/.env
-template/__pycache__/settings.cpython-38.pyc
 venv/
+api/__pycache__/
