@@ -51,3 +51,20 @@ class LoginSerializer(serializers.ModelSerializer):
                 "refresh_token": refresh_token,
             },
         }
+
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(max_length=255)
+    last_name = serializers.CharField(max_length=255)
+    email = serializers.CharField(max_length=255, read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "accepted_terms_at",
+            "is_verified",
+        ]

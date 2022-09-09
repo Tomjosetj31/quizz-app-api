@@ -1,7 +1,7 @@
 import jwt
 import datetime
 
-from .utils import Util
+from .utils import Util, CustomerAccessPermission
 from django.shortcuts import render
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
@@ -11,10 +11,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny
 
 
-from .serializers import UserSerializer, LoginSerializer
+from .serializers import UserSerializer, LoginSerializer, UpdateUserSerializer
 from .models import User
 
 
@@ -77,3 +76,25 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserView(APIView):
+    permission_classes = [CustomerAccessPermission]
+
+    def get(self, request):
+        instance = User.objects.get(id=request.user.id)
+        serializer = UpdateUserSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        instance = User.objects.get(id=request.user.id)
+        data = request.data
+        serializer = UpdateUserSerializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request):
+        instance = User.objects.get(id=request.user.id)
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
