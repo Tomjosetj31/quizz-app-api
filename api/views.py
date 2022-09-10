@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
-
+from django.core import serializers
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -23,8 +23,9 @@ from .serializers import (
     LoginSerializer,
     UpdateUserSerializer,
     QuestionSerializer,
+    LeaderBoardSerializer,
 )
-from .models import Question, User, Token
+from .models import LeaderBoard, Question, User, Token
 
 
 # Create your views here.
@@ -244,6 +245,17 @@ class ChangePasswordView(APIView):
         )
 
 
+class LogoutView(APIView):
+    permission_classes = [CustomerAccessPermission]
+
+    def delete(self, request):
+        access_token = request.headers.get("Authorization").split(" ")[1]
+        instance = Token.objects.get(access_token=access_token)
+        instance.delete()
+
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
+
+
 class QuestionsView(APIView):
     permission_classes = [CustomerAccessPermission]
 
@@ -275,12 +287,20 @@ class QuestionView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class LogoutView(APIView):
+class LeaderBoardView(APIView):
     permission_classes = [CustomerAccessPermission]
 
-    def delete(self, request):
-        access_token = request.headers.get("Authorization").split(" ")[1]
-        instance = Token.objects.get(access_token=access_token)
-        instance.delete()
+    def get(self, request):
+        leaderboard = LeaderBoard.objects.all()  # serialization issue
+        return Response(status=status.HTTP_200_OK)
 
-        return Response({"message": "success"}, status=status.HTTP_200_OK)
+    def post(self, request):
+        data = LeaderBoard(points=request.data["points"], user=request.user)
+        data.save()
+        return Response(status=status.HTTP_200_OK)
+
+    def put(self, request):
+        user_point = LeaderBoard.objects.get(user_id=request.user.id)
+        user_point.points = request.data["points"] + user_point.points
+        user_point.save()
+        return Response(status=status.HTTP_200_OK)

@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from .views import (
+    LeaderBoardView,
     LoginView,
     QuestionsView,
     QuestionView,
@@ -40,4 +41,5 @@ urlpatterns = [
     path("change-password", ChangePasswordView.as_view(), name="change-password"),
     path("question/", QuestionsView.as_view()),
     path("question/<qstn_id>", QuestionView.as_view()),
+    path("leaderboard/", LeaderBoardView.as_view()),
 ]

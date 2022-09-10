@@ -3,7 +3,7 @@ from django.contrib import auth
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
-from .models import Question, User, Token
+from .models import LeaderBoard, Question, User, Token
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -86,9 +86,15 @@ class QuestionSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-    def getAll():
-        return Question.objects.all()
 
-    def getQuestion(qstn_id):
-        question = Question.objects.filter(id=qstn_id)
-        return question
+class LeaderBoardSerializer(serializers.ModelSerializer):
+    point = serializers.IntegerField()
+
+    class Meta:
+        model = LeaderBoard
+        fields = [
+            "id",
+            "point",
+            "created_at",
+            "updated_at",
+        ]
