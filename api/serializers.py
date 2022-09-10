@@ -3,7 +3,7 @@ from django.contrib import auth
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
-from .models import User, Token
+from .models import Question, User, Token
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -68,3 +68,27 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             "accepted_terms_at",
             "is_verified",
         ]
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    question = serializers.CharField(max_length=1000)
+    answer = serializers.CharField(max_length=500)
+    image_path = serializers.CharField(max_length=250)
+
+    class Meta:
+        model = Question
+        fields = [
+            "id",
+            "question",
+            "answer",
+            "image_path",
+            "created_at",
+            "updated_at",
+        ]
+
+    def getAll():
+        return Question.objects.all()
+
+    def getQuestion(qstn_id):
+        question = Question.objects.filter(id=qstn_id)
+        return question

@@ -40,5 +40,25 @@ class Token(models.Model):
     access_token = models.CharField(max_length=500, null=True)
     refresh_token = models.CharField(max_length=500, null=True)
 
-    # user_id = models.IntegerField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class Question(models.Model):
+    question = models.CharField(max_length=1000)
+    answer = models.CharField(max_length=500)
+    image_path = models.CharField(max_length=250)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+
+class LeaderBoard(models.Model):
+    points = models.IntegerField()
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)

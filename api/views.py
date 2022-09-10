@@ -1,5 +1,6 @@
 import jwt
 import datetime
+import json
 
 from .utils import Util, CustomerAccessPermission
 from django.shortcuts import render
@@ -21,8 +22,9 @@ from .serializers import (
     UserSerializer,
     LoginSerializer,
     UpdateUserSerializer,
+    QuestionSerializer,
 )
-from .models import User, Token
+from .models import Question, User, Token
 
 
 # Create your views here.
@@ -240,3 +242,45 @@ class ChangePasswordView(APIView):
         return Response(
             {"message": "password change success"}, status=status.HTTP_200_OK
         )
+
+
+class QuestionsView(APIView):
+    permission_classes = [CustomerAccessPermission]
+
+    def post(self, request):
+        serializer = QuestionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class QuestionView(APIView):
+    permission_classes = [CustomerAccessPermission]
+
+    def get(self, request, qstn_id):
+        instance = Question.objects.get(id=qstn_id)
+        serializer = QuestionSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, qstn_id):
+        instance = Question.objects.get(id=qstn_id)
+        serializer = QuestionSerializer(instance, request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, qstn_id):
+        instance = Question.objects.get(id=qstn_id)
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class LogoutView(APIView):
+    permission_classes = [CustomerAccessPermission]
+
+    def delete(self, request):
+        access_token = request.headers.get("Authorization").split(" ")[1]
+        instance = Token.objects.get(access_token=access_token)
+        instance.delete()
+
+        return Response({"message": "success"}, status=status.HTTP_200_OK)

@@ -6,6 +6,8 @@ from rest_framework_simplejwt.views import (
 
 from .views import (
     LoginView,
+    QuestionsView,
+    QuestionView,
     RegisterView,
     VerifyView,
     UserView,
@@ -36,4 +38,6 @@ urlpatterns = [
         name="password-reset-complete",
     ),
     path("change-password", ChangePasswordView.as_view(), name="change-password"),
+    path("question/", QuestionsView.as_view()),
+    path("question/<qstn_id>", QuestionView.as_view()),
 ]
