@@ -8,10 +8,10 @@ from .models import Token
 
 def check_whether_logged_out(access_token):
     token = None
-    token = Token.objects.get(access_token=access_token)
+    token = Token.objects.filter(access_token=access_token)
     if not token:
-        AuthenticationFailed("invalid token")
-    return
+        return False
+    return True
 
 
 class Util:
@@ -25,7 +25,11 @@ class Util:
 
 class CustomerAccessPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        access_token = request.headers.get("Authorization").split(" ")[1]
-        check_whether_logged_out(access_token)
 
-        return bool(request.user and request.user.is_authenticated)
+        access_token = request.headers.get("Authorization").split(" ")[1]
+
+        return bool(
+            check_whether_logged_out(access_token)
+            and request.user
+            and request.user.is_authenticated
+        )

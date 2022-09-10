@@ -13,8 +13,12 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-from .serializers import UserSerializer, LoginSerializer, UpdateUserSerializer
-from .models import User
+from .serializers import (
+    UserSerializer,
+    LoginSerializer,
+    UpdateUserSerializer,
+)
+from .models import User, Token
 
 
 # Create your views here.
@@ -98,3 +102,14 @@ class UserView(APIView):
         instance = User.objects.get(id=request.user.id)
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class LogoutView(APIView):
+    permission_classes = [CustomerAccessPermission]
+
+    def delete(self, request):
+        access_token = request.headers.get("Authorization").split(" ")[1]
+        instance = Token.objects.get(access_token=access_token)
+        instance.delete()
+
+        return Response({"message": "success"}, status=status.HTTP_200_OK)
