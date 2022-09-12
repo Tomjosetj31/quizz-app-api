@@ -42,7 +42,8 @@ class RegisterView(APIView):
         current_site = get_current_site(request).domain
         absolute_url = "http://" + current_site + relative_link + "?token=" + str(token)
 
-        email_body = "Hi Use link bbelow to verify your email \n" + absolute_url
+        print(absolute_url)
+        email_body = "Hi Use link below to verify your email \n" + absolute_url
         data = {"body": email_body, "subject": "verify your email", "to": user.email}
         Util.send_email(data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -291,8 +292,9 @@ class LeaderBoardView(APIView):
     permission_classes = [CustomerAccessPermission]
 
     def get(self, request):
-        leaderboard = LeaderBoard.objects.all()  # serialization issue
-        return Response(status=status.HTTP_200_OK)
+        leaderboard = LeaderBoard.objects.all()
+        serializer = LeaderBoardSerializer(leaderboard, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         data = LeaderBoard(points=request.data["points"], user=request.user)

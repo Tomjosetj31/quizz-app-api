@@ -88,13 +88,12 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class LeaderBoardSerializer(serializers.ModelSerializer):
-    point = serializers.IntegerField()
-
     class Meta:
         model = LeaderBoard
         fields = [
             "id",
-            "point",
+            "points",
+            "user_id",
             "created_at",
             "updated_at",
         ]
